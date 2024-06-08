@@ -1,0 +1,41 @@
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+
+# Definir modelo de Receta
+class Receta(Base):
+    __tablename__ = 'recetas'
+
+    id = Column(Integer, primary_key=True)
+    nombre = Column(String)
+
+    ingredientes = relationship("Ingrediente", back_populates="receta")
+    pasos = relationship("Paso", back_populates="receta")
+
+# Definir modelo de Ingrediente
+class Ingrediente(Base):
+    __tablename__ = 'ingredientes'
+
+    id = Column(Integer, primary_key=True)
+    receta_id = Column(Integer, ForeignKey('recetas.id'))
+    ingrediente = Column(String)
+
+    receta = relationship("Receta", back_populates="ingredientes")
+
+# Definir modelo de Paso
+class Paso(Base):
+    __tablename__ = 'pasos'
+
+    id = Column(Integer, primary_key=True)
+    receta_id = Column(Integer, ForeignKey('recetas.id'))
+    paso = Column(String)
+
+    receta = relationship("Receta", back_populates="pasos")
+
+# Configurar la conexión a MariaDB
+engine = create_engine('mysql+mysqlconnector://usuario:contraseña@localhost/nombre_bd')
+Base.metadata.create_all(engine)
+Session = sessionmaker(bind=engine)
+session = Session()
