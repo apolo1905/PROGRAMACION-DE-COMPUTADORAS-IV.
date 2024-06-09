@@ -1,0 +1,65 @@
+pip install celery
+sudo apt install redis-server
+# celery_config.py
+
+broker_url = 'redis://localhost:6379/0'
+result_backend = 'redis://localhost:6379/0'
+from celery import Celery
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+# Crear la instancia Celery
+celery = Celery('app', broker='redis://localhost:6379/0')
+
+# Configurar Celery con la configuración en celery_config.py
+celery.config_from_object('celery_config')
+
+@celery.task
+def enviar_correo(destinatario, asunto, cuerpo):
+    # Configurar el servidor SMTP
+    smtp_server = 'smtp.example.com'
+    smtp_port = 587
+    smtp_user = 'tu_correo@example.com'
+    smtp_pass = 'tu_contraseña'
+
+    # Crear el mensaje de correo
+    msg = MIMEMultipart()
+    msg['From'] = smtp_user
+    msg['To'] = destinatario
+    msg['Subject'] = asunto
+    msg.attach(MIMEText(cuerpo, 'plain'))
+
+    # Conectar al servidor SMTP y enviar el correo
+    try:
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(smtp_user, smtp_pass)
+        server.sendmail(smtp_user, destinatario, msg.as_string())
+        server.quit()
+        return True
+    except Exception as e:
+        print(f'Error al enviar el correo: {e}')
+        return False
+
+from flask import Flask, render_template, request
+from celery import Celery
+from celery_config import celery
+
+app = Flask(__name__)
+
+@app.route('/enviar-correo', methods=['POST'])
+def enviar_correo():
+    destinatario = request.form['destinatario']
+    asunto = request.form['asunto']
+    cuerpo = request.form['cuerpo']
+
+    # Llamar a la tarea Celery para enviar el correo de forma asíncrona
+    enviar_correo.delay(destinatario, asunto, cuerpo)
+
+    return 'Correo en proceso de envío.'
+
+if __name__ == '__main__':
+    app.run()
+celery -A app.celery worker --loglevel=info
+python app.py
