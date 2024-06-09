@@ -1,0 +1,40 @@
+import requests
+
+# URL base de la API SWAPI
+base_url = 'https://swapi.dev/api/'
+
+def obtener_numero_planetas_aridos():
+    url = base_url + 'planets/?search=arid'
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        return len(data['results'])
+    return None
+
+def obtener_numero_wookies():
+    url = base_url + 'people/?search=wookiee'
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        return len(data['results'])
+    return None
+
+def obtener_nombre_aeronave_mas_pequena():
+    url = base_url + 'films/1/'
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        return data['starships'][0] if data['starships'] else None
+    return None
+
+# Pregunta a) ¿En cuántas películas aparecen planetas cuyo clima sea árido?
+numero_planetas_aridos = obtener_numero_planetas_aridos()
+print(f'Número de películas con planetas áridos: {numero_planetas_aridos}')
+
+# Pregunta b) ¿Cuántos Wookies aparecen en toda la saga?
+numero_wookies = obtener_numero_wookies()
+print(f'Número total de Wookies en la saga: {numero_wookies}')
+
+# Pregunta c) ¿Cuál es el nombre de la aeronave más pequeña en la primera película?
+nombre_aeronave_mas_pequena = obtener_nombre_aeronave_mas_pequena()
+print(f'Nombre de la aeronave más pequeña en la primera película: {nombre_aeronave_mas_pequena}')
