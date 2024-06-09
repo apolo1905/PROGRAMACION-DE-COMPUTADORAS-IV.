@@ -1,0 +1,23 @@
+sudo apt update
+sudo apt install nginx
+sudo apt install gunicorn
+# gunicorn_config.py
+
+bind = '127.0.0.1:8000'
+workers = 4
+# /etc/nginx/sites-available/nginx_config
+
+server {
+    listen 80;
+    server_name recetas.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+sudo ln -s /etc/nginx/sites-available/nginx_config /etc/nginx/sites-enabled/
+gunicorn -c gunicorn_config.py app:app
+sudo systemctl restart nginx
