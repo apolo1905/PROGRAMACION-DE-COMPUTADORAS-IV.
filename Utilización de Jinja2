@@ -1,0 +1,55 @@
+html
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recetas</title>
+</head>
+<body>
+    <h1>Recetas</h1>
+
+    <form method="POST" action="{{ url_for('index') }}">
+        <label for="nombre">Nombre de la receta:</label>
+        <input type="text" id="nombre" name="nombre" required><br>
+
+        <label for="ingredientes">Ingredientes:</label>
+        <textarea id="ingredientes" name="ingredientes" rows="4" cols="50" required></textarea><br>
+
+        <label for="pasos">Pasos:</label>
+        <textarea id="pasos" name="pasos" rows="4" cols="50" required></textarea><br>
+
+        <button type="submit">Agregar Receta</button>
+    </form>
+
+    <hr>
+
+    <h2>Listado de Recetas:</h2>
+    <ul>
+        {% for receta in recetas %}
+        <li>{{ receta.nombre }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+
+from flask import Flask, render_template, request, redirect, url_for
+
+# Resto del código...
+
+# Ruta principal para mostrar el formulario y las recetas
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        ingredientes = request.form.getlist('ingredientes')
+        pasos = request.form.getlist('pasos')
+
+        agregar_receta(nombre, ingredientes, pasos)
+        return redirect(url_for('index'))
+
+    recetas = obtener_recetas()
+    return render_template('index.html', recetas=recetas)
+
+# codigo
