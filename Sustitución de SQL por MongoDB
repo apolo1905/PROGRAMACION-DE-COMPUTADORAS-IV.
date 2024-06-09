@@ -1,0 +1,43 @@
+import pymongo                                                                
+
+# Conectar a MongoDB
+client = pymongo.MongoClient("mongodb://localhost:27017/")
+db = client["recetas_db"]
+
+# Modelo de Receta en MongoDB
+def agregar_receta():
+    nombre = input("Nombre de la receta: ")
+    ingredientes = []
+    pasos = []
+
+    print("Agregar ingredientes (deje vacío para terminar):")
+    while True:
+        ingrediente = input("Ingrediente: ")
+        if not ingrediente:
+            break
+        ingredientes.append(ingrediente)
+
+    print("Agregar pasos (deje vacío para terminar):")
+    while True:
+        paso = input("Paso: ")
+        if not paso:
+            break
+        pasos.append(paso)
+
+    receta = {
+        "nombre": nombre,
+        "ingredientes": ingredientes,
+        "pasos": pasos
+    }
+
+    # Guardar la receta en MongoDB
+    recetas_collection = db["recetas"]
+    recetas_collection.insert_one(receta)
+
+# Función para ver recetas en MongoDB
+def ver_recetas():
+    recetas_collection = db["recetas"]
+    recetas = recetas_collection.find()
+
+    for receta in recetas:
+        print(f"{receta['_id']}. {receta['nombre']}")
