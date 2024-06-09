@@ -5,7 +5,7 @@ from flask_restful import Resource, Api
 app = Flask(__name__)
 api = Api(app)
 
-# Supongamos que los datos se almacenan en un diccionario por ahora
+#  datos almacenados 
 data = {
     "vacunacion_sarampion": {
         "PAN": {
