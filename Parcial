@@ -1,0 +1,81 @@
+import sqlite3
+
+# Conectar a la base de datos o crearla si no existe
+conn = sqlite3.connect('presupuesto.db')
+cursor = conn.cursor()
+
+# Crear la tabla para los artículos del presupuesto
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS presupuesto (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre TEXT NOT NULL,
+    categoria TEXT,
+    cantidad INTEGER
+)
+''')
+
+# Guardar los cambios y cerrar la conexión
+conn.commit()
+conn.close()
+
+import sqlite3
+import click
+print ("hola eres bienvenido")
+print ("disfruta tu recorrido")
+# Conectar a la base de datos
+conn = sqlite3.connect('presupuesto.db')
+cursor = conn.cursor()
+
+@click.group()
+def cli():
+    pass
+
+@cli.command()
+@click.option('--nombre', prompt='Nombre del artículo', help='Nombre del artículo')
+@click.option('--categoria', prompt='Categoría del artículo', help='Categoría del artículo')
+@click.option('--cantidad', prompt='Cantidad del artículo', help='Cantidad del artículo')
+def registrar(nombre, categoria, cantidad):
+    cursor.execute('''
+    INSERT INTO presupuesto (nombre, categoria, cantidad) VALUES (?, ?, ?)
+    ''', (nombre, categoria, cantidad))
+    conn.commit()
+    click.echo('Artículo registrado exitosamente.')
+
+@cli.command()
+@click.option('--nombre', prompt='Nombre del artículo', help='Nombre del artículo a buscar')
+def buscar(nombre):
+    cursor.execute('''
+    SELECT * FROM presupuesto WHERE nombre LIKE ?
+    ''', (f'%{nombre}%',))
+    results = cursor.fetchall()
+    if results:
+        click.echo('Resultados:')
+        for row in results:
+            click.echo(f'ID: {row[0]}, Nombre: {row[1]}, Categoría: {row[2]}, Cantidad: {row[3]}')
+    else:
+        click.echo('No se encontraron resultados.')
+
+@cli.command()
+@click.option('--id', prompt='ID del artículo a editar', help='ID del artículo a editar')
+@click.option('--nombre', prompt='Nuevo nombre del artículo', help='Nuevo nombre del artículo')
+@click.option('--categoria', prompt='Nueva categoría del artículo', help='Nueva categoría del artículo')
+@click.option('--cantidad', prompt='Nueva cantidad del artículo', help='Nueva cantidad del artículo')
+def editar(id, nombre, categoria, cantidad):
+    cursor.execute('''
+    UPDATE presupuesto SET nombre=?, categoria=?, cantidad=? WHERE id=?
+    ''', (nombre, categoria, cantidad, id))
+    conn.commit()
+    click.echo('Artículo editado exitosamente.')
+
+@cli.command()
+@click.option('--id', prompt='ID del artículo a eliminar', help='ID del artículo a eliminar')
+def eliminar(id):
+    cursor.execute('''
+    DELETE FROM presupuesto WHERE id=?
+    ''', (id,))
+    conn.commit()
+    click.echo('Artículo eliminado exitosamente.')
+
+if __name__ == '__main__':
+    cli()
+
