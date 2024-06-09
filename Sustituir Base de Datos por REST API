@@ -1,0 +1,69 @@
+from flask import Flask, request
+from flask_restful import Api, Resource, reqparse
+import json
+
+app = Flask(__name__)
+api = Api(app)
+
+recetas = []
+
+class Recetas(Resource):
+    def get(self):
+        return recetas
+
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('nombre', required=True)
+        parser.add_argument('ingredientes', required=True)
+        parser.add_argument('pasos', required=True)
+        args = parser.parse_args()
+
+        receta = {
+            'id': len(recetas) + 1,
+            'nombre': args['nombre'],
+            'ingredientes': args['ingredientes'],
+            'pasos': args['pasos']
+        }
+        recetas.append(receta)
+        return receta, 201
+
+class Receta(Resource):
+    def get(self, id):
+        receta = next((r for r in recetas if r['id'] == id), None)
+        if receta:
+            return receta
+        return {'message': 'Receta no encontrada'}, 404
+
+    def put(self, id):
+        parser = reqparse.RequestParser()
+        parser.add_argument('nombre')
+        parser.add_argument('ingredientes')
+        parser.add_argument('pasos')
+        args = parser.parse_args()
+
+        receta = next((r for r in recetas if r['id'] == id), None)
+        if receta:
+            receta.update(args)
+            return receta, 200
+        return {'message': 'Receta no encontrada'}, 404
+
+    def delete(self, id):
+        global recetas
+        recetas = [r for r in recetas if r['id'] != id]
+        return {'message': 'Receta eliminada'}, 200
+
+api.add_resource(Recetas, '/recetas')
+api.add_resource(Receta, '/recetas/<int:id>')
+
+if __name__ == '__main__':
+    app.run(debug=True)
+import requests
+import json
+
+def agregar_receta(nombre, ingredientes, pasos):
+    url = 'http://localhost:5000/recetas'
+    data = {'nombre': nombre, 'ingredientes': ingredientes, 'pasos': pasos}
+    response = requests.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'})
+    if response.status_code == 201:
+        return response.json()
+    return None
