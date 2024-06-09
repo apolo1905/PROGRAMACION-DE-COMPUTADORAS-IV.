@@ -1,0 +1,37 @@
+from flask import Flask, jsonify
+from flask_restful import Resource, Api
+
+# Inicializar la aplicación Flask
+app = Flask(__name__)
+api = Api(app)
+
+# Supongamos que los datos se almacenan en un diccionario por ahora
+data = {
+    "vacunacion_sarampion": {
+        "PAN": {
+            "2020": {"vacunados": 12000, "no_vacunados": 2000},
+            "2021": {"vacunados": 13000, "no_vacunados": 1800},
+            # Añade más datos aquí...
+        },
+        "VEN": {
+            "2020": {"vacunados": 11000, "no_vacunados": 2500},
+            "2021": {"vacunados": 11500, "no_vacunados": 2300},
+            # Añade más datos aquí...
+        }
+    }
+}
+
+class VacunacionSarampion(Resource):
+    def get(self, country, year):
+        if country in data["vacunacion_sarampion"]:
+            if year in data["vacunacion_sarampion"][country]:
+                return {year: data["vacunacion_sarampion"][country][year]}
+            else:
+                return {"error": "No se encontraron datos para el año proporcionado."}
+        else:
+            return {"error": "No se encontraron datos para el país proporcionado."}
+
+api.add_resource(VacunacionSarampion, '/vacunacion_sarampion/<string:country>/<string:year>')
+
+if __name__ == '__main__':
+    app.run(debug=True)
