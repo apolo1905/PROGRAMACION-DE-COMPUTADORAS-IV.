@@ -1,0 +1,41 @@
+import redis
+
+# Conectar a Redis
+client = redis.StrictRedis(host='localhost', port=6379, db=0)
+
+# Agregar nueva receta en Redis
+def agregar_receta():
+    nombre = input("Nombre de la receta: ")
+    ingredientes = []
+    pasos = []
+
+    print("Agregar ingredientes (deje vacío para terminar):")
+    while True:
+        ingrediente = input("Ingrediente: ")
+        if not ingrediente:
+            break
+        ingredientes.append(ingrediente)
+
+    print("Agregar pasos (deje vacío para terminar):")
+    while True:
+        paso = input("Paso: ")
+        if not paso:
+            break
+        pasos.append(paso)
+
+    receta = {
+        "nombre": nombre,
+        "ingredientes": ingredientes,
+        "pasos": pasos
+    }
+
+    # Guardar la receta en Redis como una cadena JSON
+    client.set(nombre, json.dumps(receta))
+
+# Ver listado de recetas en Redis
+def ver_recetas():
+    keys = client.keys('*')
+    for key in keys:
+        receta_json = client.get(key)
+        receta = json.loads(receta_json)
+        print(f"{key}. {receta['nombre']}")
