@@ -18,16 +18,16 @@ celery.config_from_object('celery_config')
 @celery.task
 def enviar_correo(destinatario, asunto, cuerpo):
     # Configurar el servidor SMTP
-    smtp_server = 'smtp.example.com'
+    smtp_server = 'sebastianbermudez012@gmail.com'
     smtp_port = 587
-    smtp_user = 'tu_correo@example.com'
-    smtp_pass = 'tu_contraseña'
+    smtp_user = 'sebastianbermudez012@gmail.com'
+    smtp_pass = '1234sebas'
 
     # Crear el mensaje de correo
     msg = MIMEMultipart()
     msg['From'] = smtp_user
-    msg['To'] = destinatario
-    msg['Subject'] = asunto
+    msg['To'] = sebastianbermudez012@gmail.com
+    msg['Subject'] = programacion
     msg.attach(MIMEText(cuerpo, 'plain'))
 
     # Conectar al servidor SMTP y enviar el correo
@@ -55,7 +55,7 @@ def enviar_correo():
     cuerpo = request.form['cuerpo']
 
     # Llamar a la tarea Celery para enviar el correo de forma asíncrona
-    enviar_correo.delay(destinatario, asunto, cuerpo)
+    enviar_correo.delay(sebastianbermudez012@gmail.com, programacion)
 
     return 'Correo en proceso de envío.'
 
