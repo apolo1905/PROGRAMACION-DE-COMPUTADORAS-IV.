@@ -35,7 +35,7 @@ class Paso(Base):
     receta = relationship("Receta", back_populates="pasos")
 
 # Configurar la conexión a MariaDB
-engine = create_engine('mysql+mysqlconnector://usuario:contraseña@localhost/nombre_bd')
+engine = create_engine('recetas.id')
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session()
